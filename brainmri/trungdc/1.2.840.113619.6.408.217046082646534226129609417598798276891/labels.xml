@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<study_query xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <study date="2020-07-23 10:27:31" studyDescription="SO" 
+           modalityDicom="MR" 
+           numSeries=""
+           numInstances="" 
+           patientPid="BHQ C1-2">
+        <patient id="771862" pid="BHQ C1-2" 
+                 name="" sex="" 
+                 birthYear="" age=""></patient>
+                             <diagnosis>
+                <id>912760</id>
+                <type>transcript</type>
+                <reading><![CDATA[-<br />]]></reading>
+                <conclude><![CDATA[]]></conclude>
+            </diagnosis>
+                    <diagnosis>
+                <id>912762</id>
+                <type>transcript</type>
+                <reading><![CDATA[-<br />]]></reading>
+                <conclude><![CDATA[]]></conclude>
+            </diagnosis>
+                            <label  sessionId ="BSDIEP"
+                    type="local"   
+                    annotation="20" 
+                    scope="" 
+                    pointUnit="mm"
+                    createTimestamp="1611460385671" 
+                    imageUid=""
+                    seriesUid="1.2.840.113619.2.408.14196467.2124406.15025.1595462784.587"
+                    studyUid="1.2.840.113619.6.408.217046082646534226129609417598798276891">
+                <tags> 
+                                                    <value name="Cerebral edema" /> 
+                                                            </tags>
+                <point> 
+                                                                        <value x="-56.664901733398" y="-17.593500137329" z="115.78199768066" />
+                                                    <value x="-42.135501861572" y="-17.593500137329" z="115.78199768066" />
+                                                    <value x="-42.135501861572" y="-7.7135601043701" z="115.78199768066" />
+                                                    <value x="-56.664901733398" y="-7.7135601043701" z="115.78199768066" />
+                                                    <value x="-56.664901733398" y="-17.593500137329" z="117.58200073242" />
+                                                    <value x="-42.135501861572" y="-17.593500137329" z="117.58200073242" />
+                                                    <value x="-42.135501861572" y="-7.7135601043701" z="117.58200073242" />
+                                                    <value x="-56.664901733398" y="-7.7135601043701" z="117.58200073242" />
+                                                    <value x="-59.57080078125" y="-16.431200027466" z="122.9820022583" />
+                                                    <value x="-43.297798156738" y="-16.431200027466" z="122.9820022583" />
+                                                    <value x="-43.297798156738" y="-5.9700398445129" z="122.9820022583" />
+                                                    <value x="-59.57080078125" y="-5.9700398445129" z="122.9820022583" />
+                                                            </point>
+            </label>
+                    <label  sessionId ="BSDIEP"
+                    type="global"   
+                    annotation="-1" 
+                    scope="series" 
+                    pointUnit=""
+                    createTimestamp="1611460411411" 
+                    imageUid=""
+                    seriesUid="1.2.840.113619.2.408.14196467.2124406.15025.1595462784.587"
+                    studyUid="1.2.840.113619.6.408.217046082646534226129609417598798276891">
+                <tags> 
+                                                    <value name="Other" /> 
+                                                            </tags>
+                <point> 
+                                    </point>
+            </label>
+            </study>
+</study_query>

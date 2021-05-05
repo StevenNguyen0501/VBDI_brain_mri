@@ -1,0 +1,16 @@
+/home/single1/BACKUP/tintrung/yolov5_2classes/images/1.2.840.113619.2.388.57473.14165493.11971.1590103510.185.png
+/home/single1/BACKUP/tintrung/yolov5_2classes/images/1.2.840.113619.2.388.57473.14165493.11971.1590103510.185.png
+/home/single1/BACKUP/tintrung/yolov5_2classes/images/1.2.840.113619.2.388.57473.14165493.11971.1590103510.186.png
+/home/single1/BACKUP/tintrung/yolov5_2classes/images/1.2.840.113619.2.388.57473.14165493.11971.1590103510.186.png
+/home/single1/BACKUP/tintrung/yolov5_2classes/images/1.2.840.113619.2.388.57473.14165493.11971.1590103510.187.png
+/home/single1/BACKUP/tintrung/yolov5_2classes/images/1.2.840.113619.2.388.57473.14165493.11971.1590103510.187.png
+/home/single1/BACKUP/tintrung/yolov5_2classes/images/1.2.840.113619.2.388.57473.14165493.11971.1590103510.188.png
+/home/single1/BACKUP/tintrung/yolov5_2classes/images/1.2.840.113619.2.388.57473.14165493.11971.1590103510.188.png
+/home/single1/BACKUP/tintrung/yolov5_2classes/images/1.2.840.113619.2.388.57473.14165493.11971.1590103510.189.png
+/home/single1/BACKUP/tintrung/yolov5_2classes/images/1.2.840.113619.2.388.57473.14165493.11971.1590103510.189.png
+/home/single1/BACKUP/tintrung/yolov5_2classes/images/1.2.840.113619.2.388.57473.14165493.11971.1590103510.190.png
+/home/single1/BACKUP/tintrung/yolov5_2classes/images/1.2.840.113619.2.388.57473.14165493.11971.1590103510.191.png
+/home/single1/BACKUP/tintrung/yolov5_2classes/images/1.2.840.113619.2.388.57473.14165493.11971.1590103510.192.png
+/home/single1/BACKUP/tintrung/yolov5_2classes/images/1.2.840.113619.2.388.57473.14165493.11971.1590103510.193.png
+/home/single1/BACKUP/tintrung/yolov5_2classes/images/1.2.840.113619.2.388.57473.14165493.11971.1590103510.194.png
+/home/single1/BACKUP/tintrung/yolov5_2classes/images/1.2.840.113619.2.388.57473.14165493.11971.1590103510.195.png

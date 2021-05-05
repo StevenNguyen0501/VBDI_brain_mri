@@ -1,0 +1,40 @@
+NAME: 'efficientnet2d'
+
+DIRS:
+  TRAIN_IMAGES: "/media/datnt/data/medical-image-data/brain-mri-images2/"
+  VALIDATION_IMAGES: "/media/datnt/data/medical-image-data/brain-mri-images2/"
+
+DATA:
+  TYPE: "multilabel"
+  CSV:
+    TRAIN: "csv/brain-mri-abnormalness-train-v2.csv"
+    VALIDATION: "csv/brain-mri-abnormalness-valid-v2.csv"
+  AUGMENT: "albumentations"
+  IMG_SIZE: (512, 512)
+  INP_CHANNEL: 3
+  CROP:
+    ENABLED: True
+
+MODEL:
+  NAME: "tf_efficientnet_b0"
+  CLS_HEAD: "linear"
+  DROPOUT: 0.5
+  DROPPATH: 0.2
+  NUM_CLASSES: 1
+
+LOSS:
+  NAME: "ce"
+
+SOLVER:
+  BASE_LR: 0.25e-4
+  WARMUP_LENGTH: 3
+  GD_STEPS: 1
+  SWA:
+    ENABLED: True
+    START_EPOCH: 4
+    DECAY: 0.999
+    FREQ: 1
+  
+TRAIN:
+  BATCH_SIZE: 8
+  EPOCHES: [10]
