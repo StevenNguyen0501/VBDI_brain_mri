@@ -5,25 +5,34 @@ from tqdm import tqdm
 from math import acos
 from numpy import degrees
 import numpy as np
-
+import pydicom
 import os
 import cv2
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 #%%
-root_images_PNG = "/home/single3/tintrung/brain-mri-tumor-images-PNG"
-test_src_folder = "/home/single3/tintrung/VBDI_brain_mri/brainmri/trungdc/copy_box_test"
+root_images_PNG = "/home/single1/tintrung/brain-mri-tumor-images-PNG"
+test_src_folder = "/home/single1/tintrung/VBDI_brain_mri/brainmri/trungdc/copy_box_test"
 pd.set_option('display.max_colwidth', None)
 #%%
+<<<<<<< HEAD
 bbox = pd.read_pickle("/home/single3/tintrung/VBDI_brain_mri/brainmri/trungdc/pkl_ver1/bbox_dat_extend.pkl")
 bbox.head()
+=======
+bbox = pd.read_pickle("/home/single1/tintrung/VBDI_brain_mri/brainmri/trungdc/pkl_ver1/bbox_dat_extend.pkl")
+print(bbox.columns)
+>>>>>>> 65c390818b32bba49acc7715277490054567b59b
 
 #%%
 
-dicom = pd.read_pickle("/home/single3/tintrung/VBDI_brain_mri/brainmri/trungdc/pkl_ver1/summary_dicom_extend.pkl")
+dicom = pd.read_pickle("/home/single1/tintrung/VBDI_brain_mri/brainmri/trungdc/pkl_ver1/summary_dicom_extend.pkl")
 dicom.head()
 #%%
+<<<<<<< HEAD
 sequence = pd.read_pickle("/home/single3/tintrung/VBDI_brain_mri/brainmri/trungdc/pkl_ver1/summary_views_sequences.pkl")
+=======
+sequence = pd.read_pickle("/home/single1/tintrung/VBDI_brain_mri/brainmri/trungdc/pkl_ver1/summary_views_sequences.pkl")
+>>>>>>> 65c390818b32bba49acc7715277490054567b59b
 sequence.head()
 
 
