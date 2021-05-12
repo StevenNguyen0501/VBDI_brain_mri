@@ -9,20 +9,21 @@ import numpy as np
 import os
 import cv2
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 #%%
 root_images_PNG = "/home/single3/tintrung/brain-mri-tumor-images-PNG"
 test_src_folder = "/home/single3/tintrung/VBDI_brain_mri/brainmri/trungdc/copy_box_test"
 pd.set_option('display.max_colwidth', None)
 #%%
 bbox = pd.read_pickle("/home/single3/tintrung/VBDI_brain_mri/brainmri/trungdc/pkl_ver1/bbox_dat_extend.pkl")
-print(bbox.columns)
+bbox.head()
 
 #%%
 
 dicom = pd.read_pickle("/home/single3/tintrung/VBDI_brain_mri/brainmri/trungdc/pkl_ver1/summary_dicom_extend.pkl")
 dicom.head()
 #%%
-sequence = pd.read_csv("/home/single3/tintrung/VBDI_brain_mri/brainmri/trungdc/pkl_ver1/data_series_axial.csv")
+sequence = pd.read_pickle("/home/single3/tintrung/VBDI_brain_mri/brainmri/trungdc/pkl_ver1/summary_views_sequences.pkl")
 sequence.head()
 
 
@@ -201,7 +202,7 @@ for series_uid in unprocessed_series:
         output_box_copy.append(output_box_copy_row)
     
     out = pd.DataFrame(output_box_copy ,columns= ['studyUid', 'seriesUid', 'imageUid', 'label', 'x1', 'x2', 'y1', 'y2',
-       'z', "anot_image_uid", "x1_anot", "x2_anot", "y1_anot", "y1_anot" ])
+       'z', "anot_image_uid", "x1_anot", "x2_anot", "y1_anot", "y2_anot" ])
     out.to_pickle(os.path.join(test_src_folder, chosen_study_uid + ".pkl"  ))
         
 
@@ -211,20 +212,61 @@ for series_uid in unprocessed_series:
 
 
 
-# %%
+#%%
+test_path = "/home/single3/tintrung/VBDI_brain_mri/brainmri/trungdc/copy_box_test/1.2.840.113619.6.388.152020302640041640501657246418858593072.pkl"
+df_copy = pd.read_pickle(test_path)
+df_copy
 
-# %%
+
+
+
+#%%
+
 def draw_compare_image(df_copy):
     root_images_PNG = "/home/single3/tintrung/brain-mri-tumor-images-PNG"
-    test_src_folder = "/home/single3/tintrung/VBDI_brain_mri/brainmri/trungdc/copy_box_test"
+    
 
     for index, row in df_copy.iterrows():
         fig, axs = plt.subplots(1, 2, sharex=True, sharey= True)
+        fig.set_size_inches(15, 15)
         copy_im = cv2.imread(os.path.join(root_images_PNG, row["imageUid"] + ".png"))
         anot_im = cv2.imread(os.path.join(root_images_PNG, row["anot_image_uid"] + ".png"))
+        copy_im =  cv2.resize(copy_im, (anot_im.shape[0], anot_im.shape[1]) )
+        print(copy_im.shape)
+        print(anot_im.shape)
+        bbox_anot = convert_bbox(row["x1_anot"], row["x2_anot"], row["y1_anot"], row["y2_anot"])
+        rect_anot = patches.Rectangle((bbox_anot[0], bbox_anot[1]), bbox_anot[2], bbox_anot[3], linewidth=1, edgecolor='r', facecolor='none')
+
+
         axs[0].imshow(copy_im)
         axs[1].imshow(anot_im)
+        axs[1].add_patch(rect_anot)
+        # plt.savefig(os.path.join(test_src_folder, "test_image", str(index)))
 
-    plt.subplots_adjust(wspace=0.025, hspace=0.025)
+    # plt.subplots_adjust(wspace=0.025, hspace=0.025)
+
+draw_compare_image(df_copy)
+# %%
+def convert_bbox(x1,x2,y1,y2):
+    width = x1 - y1
+    height = x2 - y2
+    bottomleftx = x1
+    bottomlefty = x2 - height
+
+    return ( bottomleftx, bottomleftx, width, height)
 
 #%%
+def draw_box(df_copy):
+    IMG_DIR = "/home/single3/tintrung/brain-mri-tumor-images-PNG"
+    IMG_BOX_DIR = "/home/single3/tintrung/VBDI_brain_mri/brainmri/trungdc/copy_box_test/test_image"
+    for index, row in df_copy.iterrows():
+
+        # img = cv2.imread(f"{IMG_DIR}/{row["anot_image_uid"]}.png")
+        # box_idx = row["x1_anot","x2_anot",	"y1_anot","y2_anot"]
+        # box_name = row["label"]
+        # for idx, name in zip(box_idx, box_name):
+        #     img = cv2.rectangle(img, (idx[0], idx[1]), (idx[2], idx[3]), (0,0,255), 2)
+        #     img = cv2.putText(img, name, (idx[0], idx[1]), fontFace=cv2.FONT_HERSHEY_PLAIN, fontScale=1, color=(0,255,0), thickness=2, lineType=cv2.LINE_AA)
+        # cv2.imwrite(f"{IMG_BOX_DIR}/{image_name}.png", img)
+
+
