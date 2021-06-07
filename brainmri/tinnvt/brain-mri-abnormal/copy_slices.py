@@ -67,7 +67,8 @@ df["PixelSpacing"] = column_pixelSpacing
 df
 
 #%%%%%%%%%%%
-df_dicom_extend
+pd.set_option('display.max_colwidth', None)
+df_dicom_extend.tail()
 
 #%%
 # #%%%
@@ -258,72 +259,78 @@ for chosen_studies in list_studiesuid:
         lst_z_anot = list(df_anot_1_studies['z'])
         
         for idx, row in tqdm(df_dcm_1_studies.iterrows()):
+            
+            chosen_seri = row['SeriesInstanceUID']
+            
             if not row['DicomFileName'].split('.dcm')[0] in list_dcm_remove:
                 img_df_dcm = cv2.imread(os.path.join(root_images_PNG, row['DicomFileName'].replace('.dcm', '.png')))
                 w1, h1, _ = img_df_dcm.shape
                 z_ipp = row['z-axis-ImagePositionPatient']
-                idx_min, choisen_z_in_lst, error = min_distance(z_ipp, lst_z_anot, threshold = 1)
-                chosen_row_anot = df_anot_1_studies.iloc[idx_min]
-                if abs(z_ipp - choisen_z_in_lst) < row['PixelSpacing'][0]:
+                dis = min_distance(z_ipp, lst_z_anot, threshold = 1)
+                
+                if dis != None:
+                    idx_min, choisen_z_in_lst, error = dis[0], dis[1], dis[2]
+                    chosen_row_anot = df_anot_1_studies.iloc[idx_min]
                     
-                    studyUid.append(chosen_studies)
-                    seriesUid.append(row['SeriesInstanceUID'])
-                    imageUid.append(row['DicomFileName'].split('.dcm')[0])
-                    label.append(chosen_row_anot['label'])
-                    base_imageUid.append(chosen_row_anot['imageUid'])
-                    base_x1.append(chosen_row_anot['x1'])
-                    base_x2.append(chosen_row_anot['x2'])
-                    base_y1.append(chosen_row_anot['y1'])
-                    base_y2.append(chosen_row_anot['y2'])
-                                        
-                    img_df_anot = cv2.imread(os.path.join(root_images_PNG, chosen_row_anot['imageUid']+'.png'))
-                    w2, h2, _ = img_df_anot.shape
-                    ratio = w1 / w2
-                    x1 = chosen_row_anot['x1']*ratio
-                    x2 = chosen_row_anot['x2']*ratio
-                    y1 = chosen_row_anot['y1']*ratio
-                    y2 = chosen_row_anot['y2']*ratio
-                    x1, x2 = process_copy_slices([x1,x2],
-                                                ipp_base=chosen_row_anot["ImagePositionPatient"], 
-                                                ipp_copied=row["ImagePositionPatient"], 
-                                                pixelSpacingBase=chosen_row_anot["PixelSpacing"][0], 
-                                                pixelSpacingCopied=row["PixelSpacing"][0], 
-                                                ratioScaleCopied2Base=ratio, 
-                                                iop_base=chosen_row_anot["ImageOrientationPatient"], 
-                                                iop_copied=row["ImageOrientationPatient"])
-                    y1, y2 = process_copy_slices([y1,y2],
-                                                ipp_base=chosen_row_anot["ImagePositionPatient"], 
-                                                ipp_copied=row["ImagePositionPatient"], 
-                                                pixelSpacingBase=chosen_row_anot["PixelSpacing"][0], 
-                                                pixelSpacingCopied=row["PixelSpacing"][0], 
-                                                ratioScaleCopied2Base=ratio, 
-                                                iop_base=chosen_row_anot["ImageOrientationPatient"], 
-                                                iop_copied=row["ImageOrientationPatient"])
+                    if abs(z_ipp - choisen_z_in_lst) < row['PixelSpacing'][0]:                        
+                        studyUid.append(chosen_studies)
+                        seriesUid.append(chosen_seri)
+                        imageUid.append(row['DicomFileName'].split('.dcm')[0])
+                        label.append(chosen_row_anot['label'])
+                        base_imageUid.append(chosen_row_anot['imageUid'])
+                        base_x1.append(chosen_row_anot['x1'])
+                        base_x2.append(chosen_row_anot['x2'])
+                        base_y1.append(chosen_row_anot['y1'])
+                        base_y2.append(chosen_row_anot['y2'])
+                                            
+                        img_df_anot = cv2.imread(os.path.join(root_images_PNG, chosen_row_anot['imageUid']+'.png'))
+                        w2, h2, _ = img_df_anot.shape
+                        ratio = w1 / w2
+                        x1 = chosen_row_anot['x1']*ratio
+                        x2 = chosen_row_anot['x2']*ratio
+                        y1 = chosen_row_anot['y1']*ratio
+                        y2 = chosen_row_anot['y2']*ratio
+                        x1, x2 = process_copy_slices([x1,x2],
+                                                    ipp_base=chosen_row_anot["ImagePositionPatient"], 
+                                                    ipp_copied=row["ImagePositionPatient"], 
+                                                    pixelSpacingBase=chosen_row_anot["PixelSpacing"][0], 
+                                                    pixelSpacingCopied=row["PixelSpacing"][0], 
+                                                    ratioScaleCopied2Base=ratio, 
+                                                    iop_base=chosen_row_anot["ImageOrientationPatient"], 
+                                                    iop_copied=row["ImageOrientationPatient"])
+                        y1, y2 = process_copy_slices([y1,y2],
+                                                    ipp_base=chosen_row_anot["ImagePositionPatient"], 
+                                                    ipp_copied=row["ImagePositionPatient"], 
+                                                    pixelSpacingBase=chosen_row_anot["PixelSpacing"][0], 
+                                                    pixelSpacingCopied=row["PixelSpacing"][0], 
+                                                    ratioScaleCopied2Base=ratio, 
+                                                    iop_base=chosen_row_anot["ImageOrientationPatient"], 
+                                                    iop_copied=row["ImageOrientationPatient"])
 
-                    if x1==None or math.isnan(x1):
-                        list_x1.append(None)
-                    else:
-                        list_x1.append(int(x1))
+                        if x1==None or math.isnan(x1):
+                            list_x1.append(None)
+                        else:
+                            list_x1.append(int(x1))
 
-                    if x2==None or math.isnan(x2):
-                        list_x2.append(None)
-                    else:
-                        list_x2.append(int(x2))
+                        if x2==None or math.isnan(x2):
+                            list_x2.append(None)
+                        else:
+                            list_x2.append(int(x2))
 
-                    if y1==None or math.isnan(y1):
-                        list_y1.append(None)
-                    else:
-                        list_y1.append(int(y1))
+                        if y1==None or math.isnan(y1):
+                            list_y1.append(None)
+                        else:
+                            list_y1.append(int(y1))
 
-                    if y2==None or math.isnan(y2):
-                        list_y2.append(None)
-                    else:
-                        list_y2.append(int(y2))
+                        if y2==None or math.isnan(y2):
+                            list_y2.append(None)
+                        else:
+                            list_y2.append(int(y2))
 
-                    if chosen_row_anot['z']==None:
-                        list_z.append(None)
-                    else:
-                        list_z.append(chosen_row_anot['z'])
+                        if chosen_row_anot['z']==None:
+                            list_z.append(None)
+                        else:
+                            list_z.append(chosen_row_anot['z'])
 
         # break
     except:
@@ -371,9 +378,10 @@ df_bbox_copy = pd.DataFrame(data_bbox_copy, columns=["studyUid", "seriesUid", "i
 df_bbox_copy.to_pickle("/home/single3/tintrung/VBDI_brain_mri/brainmri/tinnvt/brain-mri-abnormal/csv_new/brain-mri-xml-bboxes-copy-4.pkl")
 
 # %%
+pd.set_option('display.max_colwidth', None)
 dm = pd.read_pickle("/home/single3/tintrung/VBDI_brain_mri/brainmri/tinnvt/brain-mri-abnormal/csv_new/brain-mri-xml-bboxes-copy-4.pkl")
 print(len(dm))
-dm
+dm.head()
 
 #%%
 def draw_compare_image(df_copy):
@@ -423,3 +431,13 @@ for idx, row in tqdm(df_bboxes_copy.iterrows()):
     shutil.copy(path_src_file, path_tar_file)
 
 
+
+
+
+#%%%%
+
+pd.set_option('display.max_colwidth', None)
+dm = pd.read_pickle("/home/single3/tintrung/VBDI_brain_mri/brainmri/tinnvt/brain-mri-abnormal/csv_new/brain-mri-xml-bboxes-copy_4k_add.pkl")
+print(len(dm))
+dm.head()
+# %%
