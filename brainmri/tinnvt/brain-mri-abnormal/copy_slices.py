@@ -64,7 +64,7 @@ df["z"] = column_z
 df["ImagePositionPatient"] = column_ipp
 df["ImageOrientationPatient"] = column_iop
 df["PixelSpacing"] = column_pixelSpacing
-df
+df.head()
 
 #%%%%%%%%%%%
 pd.set_option('display.max_colwidth', None)
@@ -204,47 +204,54 @@ def min_distance(given_point: float, list_points: list, threshold = 1):
     @target_points: z value of matching slices
     @error: differences between given_point and matched_point
     """
-    if (given_point >= list_points[0]) & (given_point <= list_points[-1]):
-        list_distances = [np.abs(given_point - pt) for pt in list_points]
-        index = np.argmin(list_distances)
-        target_point = float(list_points[index])
-        error = abs(target_point - given_point)
-        if error <= threshold:
+    if not list_points:
+        return None
+    else:
+        if (given_point >= min(list_points)) & (given_point <= max(list_points)):
+            list_distances = [np.abs(given_point - pt) for pt in list_points]
+            index = np.argmin(list_distances)
+            target_point = float(list_points[index])
+            error = abs(target_point - given_point)
+            if error <= threshold:
+                return [index, target_point, error]
+            else:
+                return None
+        elif abs(given_point - min(list_points)) <= threshold:
+            index = 0
+            target_point = float(list_points[index])
+            error = abs(target_point - given_point)
+            return [index, target_point, error]
+        elif abs(given_point - max(list_points)) <= threshold:
+            index = len(list_points)-1
+            target_point = float(list_points[-1])
+            error = abs(target_point - given_point)
             return [index, target_point, error]
         else:
             return None
-    elif abs(given_point - list_points[0]) <= threshold:
-        index = 0
-        target_point = float(list_points[index])
-        error = abs(target_point - given_point)
-        return [index, target_point, error]
-    elif abs(given_point - list_points[-1]) <= threshold:
-        index = len(list_points)-1
-        target_point = float(list_points[-1])
-        error = abs(target_point - given_point)
-        return [index, target_point, error]
-    else:
-        return None
+
 
 
 # %%
 list_dcm_remove = list(df['imageUid'].drop_duplicates())
 list_studiesuid = list(df['studyUid'].drop_duplicates())
 
-studyUid = []
-seriesUid = []
-imageUid = []
-label = []
-list_x1 = []
-list_x2 = []
-list_y1 = []
-list_y2 = []
+list_studyUid = []
+list_label = []
 list_z = []
-base_imageUid = []
-base_x1 = []
-base_x2 = []
-base_y1 = []
-base_y2 = []
+
+list_based_seriesUid = []
+list_based_imageUid = []
+list_based_x1 = []
+list_based_x2 = []
+list_based_y1 = []
+list_based_y2 = []
+
+list_copied_seriesUid = []
+list_copied_imageUid = []
+list_copied_x1 = []
+list_copied_x2 = []
+list_copied_y1 = []
+list_copied_y2 = []
 
 
 for chosen_studies in list_studiesuid:
@@ -266,22 +273,24 @@ for chosen_studies in list_studiesuid:
                 img_df_dcm = cv2.imread(os.path.join(root_images_PNG, row['DicomFileName'].replace('.dcm', '.png')))
                 w1, h1, _ = img_df_dcm.shape
                 z_ipp = row['z-axis-ImagePositionPatient']
-                dis = min_distance(z_ipp, lst_z_anot, threshold = 1)
+                dis = min_distance(z_ipp, lst_z_anot, threshold = 2)
                 
                 if dis != None:
                     idx_min, choisen_z_in_lst, error = dis[0], dis[1], dis[2]
                     chosen_row_anot = df_anot_1_studies.iloc[idx_min]
                     
                     if abs(z_ipp - choisen_z_in_lst) < row['PixelSpacing'][0]:                        
-                        studyUid.append(chosen_studies)
-                        seriesUid.append(chosen_seri)
-                        imageUid.append(row['DicomFileName'].split('.dcm')[0])
-                        label.append(chosen_row_anot['label'])
-                        base_imageUid.append(chosen_row_anot['imageUid'])
-                        base_x1.append(chosen_row_anot['x1'])
-                        base_x2.append(chosen_row_anot['x2'])
-                        base_y1.append(chosen_row_anot['y1'])
-                        base_y2.append(chosen_row_anot['y2'])
+                        list_studyUid.append(chosen_studies)
+                        list_copied_seriesUid.append(chosen_seri)
+                        list_copied_imageUid.append(row['DicomFileName'].split('.dcm')[0])
+                        list_label.append(chosen_row_anot['label'])
+
+                        list_based_seriesUid.append(chosen_row_anot['seriesUid'])
+                        list_based_imageUid.append(chosen_row_anot['imageUid'])
+                        list_based_x1.append(chosen_row_anot['x1'])
+                        list_based_x2.append(chosen_row_anot['x2'])
+                        list_based_y1.append(chosen_row_anot['y1'])
+                        list_based_y2.append(chosen_row_anot['y2'])
                                             
                         img_df_anot = cv2.imread(os.path.join(root_images_PNG, chosen_row_anot['imageUid']+'.png'))
                         w2, h2, _ = img_df_anot.shape
@@ -308,30 +317,30 @@ for chosen_studies in list_studiesuid:
                                                     iop_copied=row["ImageOrientationPatient"])
 
                         if x1==None or math.isnan(x1):
-                            list_x1.append(None)
+                            list_copied_x1.append(None)
                         else:
-                            list_x1.append(int(x1))
+                            list_copied_x1.append(int(x1))
 
                         if x2==None or math.isnan(x2):
-                            list_x2.append(None)
+                            list_copied_x2.append(None)
                         else:
-                            list_x2.append(int(x2))
+                            list_copied_x2.append(int(x2))
 
                         if y1==None or math.isnan(y1):
-                            list_y1.append(None)
+                            list_copied_y1.append(None)
                         else:
-                            list_y1.append(int(y1))
+                            list_copied_y1.append(int(y1))
 
                         if y2==None or math.isnan(y2):
-                            list_y2.append(None)
+                            list_copied_y2.append(None)
                         else:
-                            list_y2.append(int(y2))
+                            list_copied_y2.append(int(y2))
 
                         if chosen_row_anot['z']==None:
                             list_z.append(None)
                         else:
                             list_z.append(chosen_row_anot['z'])
-
+                
         # break
     except:
         print(f"Error study with more than one annotated series: {chosen_studies}")
@@ -339,105 +348,103 @@ for chosen_studies in list_studiesuid:
         print(f"Number of annotated study: {len(studies)}")
         print(*studies, sep= "\n")
 
-print(len(studyUid))
-print(len(seriesUid))
-print(len(imageUid))
-print(len(label))
-print(len(list_x1))
-print(len(list_x2))
-print(len(list_y1))
-print(len(list_y2))
+
+print(len(list_studyUid))
+print(len(list_label))
 print(len(list_z))
-print(len(base_imageUid))
-print(len(base_x1))
-print(len(base_x2))
-print(len(base_y1))
-print(len(base_y2))
+print(len(list_based_seriesUid))
+print(len(list_based_imageUid))
+print(len(list_based_x1))
+print(len(list_based_x2))
+print(len(list_based_y1))
+print(len(list_based_y2))
+print(len(list_copied_seriesUid))
+print(len(list_copied_imageUid))
+print(len(list_copied_x1))
+print(len(list_copied_x2))
+print(len(list_copied_y1))
+print(len(list_copied_y2))
 
 
 data_bbox_copy = {
-    "studyUid": studyUid,
-    "seriesUid": seriesUid,
-    "imageUid_copied": imageUid,
-    "label": label,
-    "x1_copied": list_x1,
-    "x2_copied": list_x2,
-    "y1_copied": list_y1,
-    "y2_copied": list_y2,
+    "studyUid": list_studyUid,
+    "label": list_label,
     "z": list_z,
-    "imageUid_based": base_imageUid,
-    "x1_based": base_x1,
-    "x2_based": base_x2,
-    "y1_based": base_y1,
-    "y2_based": base_y2,
-    
+    "based_seriesUid": list_based_seriesUid,
+    "based_imageUid": list_based_imageUid,
+    "based_x1": list_based_x1,
+    "based_x2": list_based_x2,
+    "based_y1": list_based_y1,
+    "based_y2": list_based_y2,
+    "copied_seriesUid": list_copied_seriesUid,
+    "copied_imageUid": list_copied_imageUid,
+    "copied_x1": list_copied_x1,
+    "copied_x2": list_copied_x2,
+    "copied_y1": list_copied_y1,
+    "copied_y2": list_copied_y2,  
 }
-# print(data_bbox_copy)
 
-df_bbox_copy = pd.DataFrame(data_bbox_copy, columns=["studyUid", "seriesUid", "imageUid_copied", "label", "x1_copied", "x2_copied", "y1_copied", "y2_copied", "z", "imageUid_based", "x1_based", "x2_based", "y1_based", "y2_based"])
-df_bbox_copy.to_pickle("/home/single3/tintrung/VBDI_brain_mri/brainmri/tinnvt/brain-mri-abnormal/csv_new/brain-mri-xml-bboxes-copy-4.pkl")
+df_bbox_copy = pd.DataFrame(data_bbox_copy, columns=["studyUid", "label", "z", "based_seriesUid", "based_imageUid", "based_x1", "based_x2", "based_y1", "based_y2", "copied_seriesUid", "copied_imageUid", "copied_x1", "copied_x2", "copied_y1", "copied_y2"])
+df_bbox_copy.to_pickle("/home/single3/tintrung/VBDI_brain_mri/brainmri/tinnvt/brain-mri-abnormal/csv_new/brain-mri-xml-bboxes-copy-3.pkl")
 
 # %%
 pd.set_option('display.max_colwidth', None)
-dm = pd.read_pickle("/home/single3/tintrung/VBDI_brain_mri/brainmri/tinnvt/brain-mri-abnormal/csv_new/brain-mri-xml-bboxes-copy-4.pkl")
+dm = pd.read_pickle("/home/single3/tintrung/VBDI_brain_mri/brainmri/tinnvt/brain-mri-abnormal/csv_new/brain-mri-xml-bboxes-copy-3.pkl")
 print(len(dm))
 dm.head()
 
 #%%
-def draw_compare_image(df_copy):
-    root_images_PNG = "/home/single3/tintrung/brain-mri-tumor-images-PNG"
+# def draw_compare_image(df_copy):
+#     root_images_PNG = "/home/single3/tintrung/brain-mri-tumor-images-PNG"
     
 
-    for index, row in df_copy.iterrows():
-        fig, axs = plt.subplots(1, 2, sharex=True, sharey= True)
-        fig.set_size_inches(15, 15)
-        copy_im = cv2.imread(os.path.join(root_images_PNG, row["imageUid"] + ".png"))
-        anot_im = cv2.imread(os.path.join(root_images_PNG, row["anot_image_uid"] + ".png"))
-        copy_im =  cv2.resize(copy_im, (anot_im.shape[0], anot_im.shape[1]) )
-        print(copy_im.shape)
-        print(anot_im.shape)
-        bbox_anot = convert_bbox(row["x1_anot"], row["x2_anot"], row["y1_anot"], row["y2_anot"])
-        rect_anot = patches.Rectangle((bbox_anot[0], bbox_anot[1]), bbox_anot[2], bbox_anot[3], linewidth=1, edgecolor='r', facecolor='none')
+#     for index, row in df_copy.iterrows():
+#         fig, axs = plt.subplots(1, 2, sharex=True, sharey= True)
+#         fig.set_size_inches(15, 15)
+#         copy_im = cv2.imread(os.path.join(root_images_PNG, row["imageUid"] + ".png"))
+#         anot_im = cv2.imread(os.path.join(root_images_PNG, row["anot_image_uid"] + ".png"))
+#         copy_im =  cv2.resize(copy_im, (anot_im.shape[0], anot_im.shape[1]) )
+#         print(copy_im.shape)
+#         print(anot_im.shape)
+#         bbox_anot = convert_bbox(row["x1_anot"], row["x2_anot"], row["y1_anot"], row["y2_anot"])
+#         rect_anot = patches.Rectangle((bbox_anot[0], bbox_anot[1]), bbox_anot[2], bbox_anot[3], linewidth=1, edgecolor='r', facecolor='none')
 
 
-        axs[0].imshow(copy_im)
-        axs[1].imshow(anot_im)
-        axs[1].add_patch(rect_anot)
-        # plt.savefig(os.path.join(test_src_folder, "test_image", str(index)))
+#         axs[0].imshow(copy_im)
+#         axs[1].imshow(anot_im)
+#         axs[1].add_patch(rect_anot)
+#         # plt.savefig(os.path.join(test_src_folder, "test_image", str(index)))
 
-    # plt.subplots_adjust(wspace=0.025, hspace=0.025)
+#     # plt.subplots_adjust(wspace=0.025, hspace=0.025)
 
-draw_compare_image(dm)
-
-
-# %%
-
-# Split dcm file
-import shutil
-
-path_source = '/home/single3/tintrung/brain-mri-tumor-images-bboxes-copy_2'
-path_target_root = '/home/single3/tintrung/brain-mri-tumor-images-bboxes-copy_2_split'
-df_bboxes_copy = pd.read_pickle('/home/single3/tintrung/VBDI_brain_mri/brainmri/tinnvt/brain-mri-abnormal/csv_new/brain-mri-xml-bboxes-copy.pkl')
-
-for idx, row in tqdm(df_bboxes_copy.iterrows()):
-    path_src_file = os.path.join(path_source, row['imageUid']+'.png')
-    path_tar_studies = os.path.join(path_target_root, row['StudyInstanceUID'])
-    if not os.path.exists(path_tar_studies):
-        os.mkdir(path_tar_studies)
-    path_tar_series = os.path.join(path_tar_studies, row['SeriesInstanceUID'])
-    if not os.path.exists(path_tar_series):
-        os.mkdir(path_tar_series)
-    path_tar_file = os.path.join(path_tar_series, row['imageUid']+'.png')
-    shutil.copy(path_src_file, path_tar_file)
+# draw_compare_image(dm)
 
 
+# # %%
+
+# # Split dcm file
+# import shutil
+
+# path_source = '/home/single3/tintrung/brain-mri-tumor-images-bboxes-copy_2'
+# path_target_root = '/home/single3/tintrung/brain-mri-tumor-images-bboxes-copy_2_split'
+# df_bboxes_copy = pd.read_pickle('/home/single3/tintrung/VBDI_brain_mri/brainmri/tinnvt/brain-mri-abnormal/csv_new/brain-mri-xml-bboxes-copy.pkl')
+
+# for idx, row in tqdm(df_bboxes_copy.iterrows()):
+#     path_src_file = os.path.join(path_source, row['imageUid']+'.png')
+#     path_tar_studies = os.path.join(path_target_root, row['StudyInstanceUID'])
+#     if not os.path.exists(path_tar_studies):
+#         os.mkdir(path_tar_studies)
+#     path_tar_series = os.path.join(path_tar_studies, row['SeriesInstanceUID'])
+#     if not os.path.exists(path_tar_series):
+#         os.mkdir(path_tar_series)
+#     path_tar_file = os.path.join(path_tar_series, row['imageUid']+'.png')
+#     shutil.copy(path_src_file, path_tar_file)
 
 
 
-#%%%%
+# #%%%%
 
-pd.set_option('display.max_colwidth', None)
-dm = pd.read_pickle("/home/single3/tintrung/VBDI_brain_mri/brainmri/tinnvt/brain-mri-abnormal/csv_new/brain-mri-xml-bboxes-copy_4k_add.pkl")
-print(len(dm))
-dm.head()
-# %%
+# pd.set_option('display.max_colwidth', None)
+# dm = pd.read_pickle("/home/single3/tintrung/VBDI_brain_mri/brainmri/tinnvt/brain-mri-abnormal/csv_new/brain-mri-xml-bboxes-copy_4k_add.pkl")
+# print(len(dm))
+# dm.head()

@@ -95,7 +95,7 @@ class WandbLogger():
         elif self.wandb:
             self.wandb_run = wandb.init(config=opt,
                                         resume="allow",
-                                        project='YOLOv5' if opt.project == 'runs/train' else Path(opt.project).stem,
+                                        project='YOLOv5_flair_plus_30_300' if opt.project == 'runs/train' else Path(opt.project).stem,
                                         name=name,
                                         job_type=job_type,
                                         id=run_id) if not wandb.run else wandb.run      

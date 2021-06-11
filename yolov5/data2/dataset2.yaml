@@ -1,0 +1,9 @@
+# train and val data as 1) directory: path/images/, 2) file: path/images.txt, or 3) list: [path1/images/, path2/images/]
+train: /home/single3/tintrung/VBDI_brain_mri/yolov5/data2/train.txt  # 1645 images
+val: /home/single3/tintrung/VBDI_brain_mri/yolov5/data2/train.txt  # 575 images
+
+# number of classes
+nc: 2
+
+# class names
+names: ['Cerebral edema', 'Mass_Nodule']

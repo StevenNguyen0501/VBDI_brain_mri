@@ -85,3 +85,10 @@ plt.tight_layout()
 fig.savefig("b.jpg")
 
 # %%
+dfold = pd.read_pickle("/home/single3/tintrung/VBDI_brain_mri/yolov5/brain-mri-xml-dataset_2classes.pkl")
+for value in ["FLAIR", "T1C", "T2"]:
+    extract = dfold[dfold.SequenceType == value]["imageUid"].drop_duplicates()
+    print(value)
+    print(len(extract))
+# %%
+# %%

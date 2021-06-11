@@ -2,11 +2,9 @@ import pandas as pd
 import cv2 
 from tqdm import tqdm
 
-# PKL_FILE = "/home/single3/Documents/tintrung/brainmri/tinnvt/brain-mri-abnormal/csv_new/brain-mri-xml-dataset-2classes.pkl"
-PKL_FILE = "/home/single3/tintrung/VBDI_brain_mri/brainmri/tinnvt/brain-mri-abnormal/csv_new/brain-mri-xml-bboxes-copy_3.pkl"
+PKL_FILE = "./csv_new/brain-mri-xml-bboxes-copy-final.pkl"
 IMG_DIR = "/home/single3/tintrung/brain-mri-tumor-images-PNG"
-# IMG_BOX_DIR = "/home/single3/Documents/tintrung/brain-mri-tumor-images-bboxes"
-IMG_BOX_DIR = "/home/single3/tintrung/brain-mri-tumor-images-bboxes-copy_3"
+IMG_BOX_DIR = "/home/single3/tintrung/brain-mri-tumor-images-bboxes-final"
 
 df = pd.read_pickle(PKL_FILE)
 def draw_box(image_name):
@@ -23,3 +21,4 @@ for fn in tqdm(df["imageUid"].unique()):
         draw_box(fn)
     except Exception as e:
         print(e)
+
