@@ -117,3 +117,33 @@ plot_series_with_bbox(df[df.SeriesUID == cur_test])
 
 
 # %%
+os.chdir("/home/single2/tintrung/VBDI_brain_mri/brainmri/trungdc/")
+bbox = pd.read_pickle("pkl_ver1/bbox_dat_extend.pkl")
+bbox.head()
+# %%
+extract = bbox[bbox.imageUid == "1.2.840.113619.2.388.57473.14165493.11896.1599525311.697"]
+extract
+# %%
+
+imgname = extract["imageUid"].values[0] + ".png"
+#%%
+fig, axs = plt.subplots(1,1)
+labels = list(extract["label"])[0]
+print(labels)
+height = extract["y2"]- extract["y1"]
+width=  extract["x2"] - extract["x1"]
+
+rect = patches.Rectangle((extract[0], extract[1]), height, extract[3], linewidth=1, edgecolor='r', facecolor='none')
+axs[0,0].add_patch(rect)
+axs[0,0].text(bbox[0], bbox[1], labels, fontsize=9, color='white')
+
+# # study_name = list(curdf["StudyUID"])[0][0]x
+# path = os.listdir(root)[i]
+# image_name = os.path.join(root, path)
+# img = read_xray(image_name)
+# axs[i,j].imshow(img)
+
+# axs[i,j].axes.xaxis.set_visible(False)
+# axs[i,j].axes.yaxis.set_visible(False)
+
+# %%

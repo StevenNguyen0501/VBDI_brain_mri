@@ -1,87 +1,85 @@
 #%%
 import pandas as pd
-import numpy as np
-# from matplotlib.pyplot import hist
-from numpy import histogram
+# from pandas.io.pickle import read_pickle
 
-import matplotlib.pyplot as plt
+#%%
+df = pd.read_pickle("/home/single2/tintrung/VBDI_brain_mri/yolov5/brain-mri-xml-bboxes-copy_4k_add.pkl")
+df.columns=  ['StudyInstanceUID', 'SeriesInstanceUID', 'imageUid_copied', 'label', 'x1_copied',
+       'x2_copied', 'y1_copied', 'y2_copied', 'z', 'imageUid_based',
+       'x1_based', 'x2_based', 'y1_based', 'y2_based']
+
+df.head()
+
+# %%
+sequence = pd.read_csv("/home/single2/tintrung/VBDI_brain_mri/yolov5/df_series_clear.csv")
+df_dicom = pd.merge(df, sequence, on=["SeriesInstanceUID", "StudyInstanceUID"])
+len(df_dicom)
+#%%
+df = pd.read_pickle("/home/single2/tintrung/VBDI_brain_mri/yolov5/brain-mri-xml-bboxes-copy_4k_add_sequence.pkl")
+extract = df[df.SeriesLabel == "FLAIR"]
+len(extract)
+
+#%%
+extract = df[df.SeriesLabel == "T1C"]
+len(extract)
 
 #%%
 
-df = pd.read_pickle("/home/single3/Documents/tintrung/yolov5_2classes/yolov5/trung_result/kfold_flair.pkl")
-# P, R, mAP@.5, mAP@.5-.95, val_loss(box, obj, cls)
-df.columns = ["Precision","Recall","map0.5","map0.95","5","6","7","8","9"]
-histogram(df["map0.5"])
+extract = df[df.SeriesLabel == "T2"]
+len(extract)
+
+
+
+
+
 
 
 
 # %%
-histogram(df["2"], density=True)
+old_df = pd.read_pickle("/home/single2/tintrung/VBDI_brain_mri/yolov5/brain-mri-xml-dataset_2classes.pkl")
+old_df.head()
+old_df.columns
+len(old_df[old_df.SequenceType == "FLAIR"])
 # %%
-
-# df = pd.read_pickle("brain-mri-xml-dataset_2classes.pkl")
-# len(df[df.SequenceType =="FLAIR"]["imageUid"])
-# %%
-fig,a =  plt.subplots(2,2)
-# a.grid(True)
-fig.set_figheight(15)
-fig.set_figwidth(15)
-a[0][0].hist(df["Precision"])
-mean = np.mean(df["Precision"])
-std = np.std(df["Precision"])
-a[0][0].set_title(f'Precision (mean: {mean:.3f} std: {std:.3f})')
-a[0][0].grid(True)
-a[0][1].hist(df["Recall"])
-mean = np.mean(df["Recall"])
-std = np.std(df["Recall"])
-a[0][1].set_title(f'Recall (mean: {mean:.3f} std: {std:.3f})')
-a[0][1].grid(True)
-a[1][0].hist(df["map0.5"])
-mean = np.mean(df["map0.5"])
-std = np.std(df["map0.5"])
-a[1][0].set_title(f'map@.5 (mean: {mean:.3f} std: {std:.3f})')
-a[1][0].grid(True)
-a[1][1].hist(df["map0.95"])
-mean = np.mean(df["map0.95"])
-std = np.std(df["map0.95"])
-a[1][1].set_title(f'map@.5-.95 (mean: {mean:.3f} std: {std:.3f})')
-a[1][1].grid(True)
-plt.show()
-plt.tight_layout()
-fig.savefig("a.jpg")
-
-# %%
-df = pd.read_pickle("/home/single3/Documents/tintrung/yolov5_2classes/yolov5/kfold_t1c.pkl")
-# P, R, mAP@.5, mAP@.5-.95, val_loss(box, obj, cls)
-df.columns = ["Precision","Recall","map0.5","map0.95","5","6","7","8","9"]
-
+df = pd.read_pickle("/home/single2/tintrung/VBDI_brain_mri/yolov5/brain-mri-xml-bboxes-copy_4k_add_sequence.pkl")
+df.head()
+df.columns
+extract = df[['StudyInstanceUID', 'SeriesInstanceUID', 'imageUid_copied', 'label',
+       'x1_copied', 'x2_copied', 'y1_copied', 'y2_copied', 'SeriesLabel']].copy()
+extract.columns = ['studyUid', 'seriesUid', 'imageUid', 'label', 'x1', 'x2', 'y1', 'y2',
+       'SequenceType']
+extract.head()
 #%%
-fig,a =  plt.subplots(2,2)
-# a.grid(True)
-fig.set_figheight(15)
-fig.set_figwidth(15)
-a[0][0].hist(df["Precision"])
-mean = np.mean(df["Precision"])
-std = np.std(df["Precision"])
-a[0][0].set_title(f'Precision (mean: {mean:.3f} std: {std:.3f})')
-a[0][0].grid(True)
-a[0][1].hist(df["Recall"])
-mean = np.mean(df["Recall"])
-std = np.std(df["Recall"])
-a[0][1].set_title(f'Recall (mean: {mean:.3f} std: {std:.3f})')
-a[0][1].grid(True)
-a[1][0].hist(df["map0.5"])
-mean = np.mean(df["map0.5"])
-std = np.std(df["map0.5"])
-a[1][0].set_title(f'map@.5 (mean: {mean:.3f} std: {std:.3f})')
-a[1][0].grid(True)
-a[1][1].hist(df["map0.95"])
-mean = np.mean(df["map0.95"])
-std = np.std(df["map0.95"])
-a[1][1].set_title(f'map@.5-.95 (mean: {mean:.3f} std: {std:.3f})')
-a[1][1].grid(True)
-plt.show()
-plt.tight_layout()
-fig.savefig("b.jpg")
+combineoldnew = pd.concat([old_df, extract])
+combineoldnew.head()
+len(combineoldnew)
+# %%
+combineoldnew.to_pickle("/home/single2/tintrung/VBDI_brain_mri/yolov5/brain-mri-xml-bboxes-copy_5k_oldnew.pkl")
+combineoldnew.head()
+# %%
+combineoldnew["SequenceType"].unique()
+
+# %%
+combineoldnew = pd.read_pickle("/home/single2/tintrung/VBDI_brain_mri/yolov5/brain-mri-xml-bboxes-copy_5k_oldnew.pkl")
+len(combineoldnew[combineoldnew.SequenceType == "FLAIR"])
+# %%
+new = {}
+for value in combineoldnew["SequenceType"].values:
+       print(type(value))
+       # if type(value) == "str":
+       #        if value not in new.values():
+       #               new[value] = 0
+       #        else:
+       #               new[value] += 1
+       # else:
+       #        print(value)
+type(new[0])
+
+
+
+
+
+
+
 
 # %%

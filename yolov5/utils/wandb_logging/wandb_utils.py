@@ -95,7 +95,7 @@ class WandbLogger():
         elif self.wandb:
             self.wandb_run = wandb.init(config=opt,
                                         resume="allow",
-                                        project='YOLOv5' if opt.project == 'runs/train' else Path(opt.project).stem,
+                                        project="YOLOv5_voting_flair" if opt.project == 'runs/train' else Path(opt.project).stem,
                                         name=name,
                                         job_type=job_type,
                                         id=run_id) if not wandb.run else wandb.run      
@@ -186,7 +186,7 @@ class WandbLogger():
             'total_epochs': opt.epochs,
             'fitness_score': fitness_score
         })
-        model_artifact.add_file(str(path / 'last.pt'), name='last.pt')
+        model_artifact.add_file(str(path / 'best.pt'), name='last.pt')
         wandb.log_artifact(model_artifact,
                            aliases=['latest', 'epoch ' + str(self.current_epoch), 'best' if best_model else ''])
         print("Saving model artifact on epoch ", epoch + 1)

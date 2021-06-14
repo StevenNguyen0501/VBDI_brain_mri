@@ -25,9 +25,9 @@ class SeriesError(Error):
 
 #%%
 # set global variable
-root_images_PNG = "/home/single3/tintrung/brain-mri-tumor-images-PNG"
-summary_dicom_path = "/home/single3/tintrung/VBDI_brain_mri/brainmri/tinnvt/brain-mri-abnormal/csv_new/summary_dicom.pkl"
-summary_anot_path = "/home/single3/tintrung/VBDI_brain_mri/brainmri/tinnvt/brain-mri-abnormal/csv_new/brain-mri-xml-dataset.pkl"
+root_images_PNG = "/home/single2/tintrung/brain-mri-tumor-images-PNG"
+summary_dicom_path = "/home/single2/tintrung/VBDI_brain_mri/brainmri/tinnvt/brain-mri-abnormal/csv_new/summary_dicom.pkl"
+summary_anot_path = "/home/single2/tintrung/VBDI_brain_mri/brainmri/tinnvt/brain-mri-abnormal/csv_new/brain-mri-xml-dataset.pkl"
 
 #%%
 df_dicom = pd.read_pickle(summary_dicom_path)
@@ -262,7 +262,14 @@ for chosen_studies in list_studiesuid:
                 img_df_dcm = cv2.imread(os.path.join(root_images_PNG, row['DicomFileName'].replace('.dcm', '.png')))
                 w1, h1, _ = img_df_dcm.shape
                 z_ipp = row['z-axis-ImagePositionPatient']
-                idx_min, choisen_z_in_lst, error = min_distance(z_ipp, lst_z_anot, threshold = 1)
+
+                match_z = min_distance(z_ipp, lst_z_anot, threshold = 1)
+                
+                if match_z == None:
+                    continue
+                else:
+                    idx_min, choisen_z_in_lst, error = match_z[0], match_z[1], match_z[2]
+
                 chosen_row_anot = df_anot_1_studies.iloc[idx_min]
                 if abs(z_ipp - choisen_z_in_lst) < row['PixelSpacing'][0]:
                     
@@ -325,7 +332,6 @@ for chosen_studies in list_studiesuid:
                     else:
                         list_z.append(chosen_row_anot['z'])
 
-        # break
     except:
         print(f"Error study with more than one annotated series: {chosen_studies}")
         studies = list(df_anot_1_studies["seriesUid"].drop_duplicates().values)
@@ -368,48 +374,53 @@ data_bbox_copy = {
 # print(data_bbox_copy)
 
 df_bbox_copy = pd.DataFrame(data_bbox_copy, columns=["studyUid", "seriesUid", "imageUid_copied", "label", "x1_copied", "x2_copied", "y1_copied", "y2_copied", "z", "imageUid_based", "x1_based", "x2_based", "y1_based", "y2_based"])
-df_bbox_copy.to_pickle("/home/single3/tintrung/VBDI_brain_mri/brainmri/tinnvt/brain-mri-abnormal/csv_new/brain-mri-xml-bboxes-copy-4.pkl")
+df_bbox_copy.to_pickle("/home/single2/tintrung/VBDI_brain_mri/brainmri/tinnvt/brain-mri-abnormal/csv_new/brain-mri-xml-bboxes-copy-4.pkl")
 
 # %%
-dm = pd.read_pickle("/home/single3/tintrung/VBDI_brain_mri/brainmri/tinnvt/brain-mri-abnormal/csv_new/brain-mri-xml-bboxes-copy-4.pkl")
+dm = pd.read_pickle("/home/single2/tintrung/VBDI_brain_mri/brainmri/tinnvt/brain-mri-abnormal/csv_new/brain-mri-xml-bboxes-copy-4.pkl")
 print(len(dm))
 dm
 
 #%%
-def draw_compare_image(df_copy):
-    root_images_PNG = "/home/single3/tintrung/brain-mri-tumor-images-PNG"
+
+IMG_DIR = "/home/single2/tintrung/brain-mri-tumor-images-PNG"
+IMG_BOX_DIR = "/home/single2/tintrung/brain-mri-tumor-images-bboxes-copy-4"
+df = dm
+
+def draw_box(image_based_name, image_copied_name):
+    img1 = cv2.imread(f"{IMG_DIR}/{image_copied_name}.png")
+    box_idx1 = df[df["imageUid_copied"] == image_copied_name].iloc[:,4:8].values
+    box_name1 = df[df["imageUid_copied"] == image_copied_name].iloc[:,3].values
+    img2 = cv2.imread(f"{IMG_DIR}/{image_based_name}.png")
+    box_idx2 = df[df["imageUid_based"] == image_based_name].iloc[:,10:14].values
+    box_name2 = df[df["imageUid_based"] == image_based_name].iloc[:,3].values
     
+    for idx1, name1 in zip(box_idx1, box_name1):
+        img1 = cv2.rectangle(img1, (int(idx1[0]), int(idx1[1])), (int(idx1[2]), int(idx1[3])), (0,0,255), 2)
+        img1 = cv2.putText(img1, name1, (int(idx1[0]), int(idx1[1])), fontFace=cv2.FONT_HERSHEY_PLAIN, fontScale=1, color=(0,255,0), thickness=2, lineType=cv2.LINE_AA)
+    for idx2, name2 in zip(box_idx2, box_name2):
+        img2 = cv2.rectangle(img2, (int(idx2[0]), int(idx2[1])), (int(idx2[2]), int(idx2[3])), (0,0,255), 2)
+        img2 = cv2.putText(img2, name2, (int(idx2[0]), int(idx2[1])), fontFace=cv2.FONT_HERSHEY_PLAIN, fontScale=1, color=(0,255,0), thickness=2, lineType=cv2.LINE_AA)
+    
+    img1 = cv2.resize(img1, (img2.shape[0], img2.shape[1]))
+    img = cv2.hconcat([img1, img2])
 
-    for index, row in df_copy.iterrows():
-        fig, axs = plt.subplots(1, 2, sharex=True, sharey= True)
-        fig.set_size_inches(15, 15)
-        copy_im = cv2.imread(os.path.join(root_images_PNG, row["imageUid"] + ".png"))
-        anot_im = cv2.imread(os.path.join(root_images_PNG, row["anot_image_uid"] + ".png"))
-        copy_im =  cv2.resize(copy_im, (anot_im.shape[0], anot_im.shape[1]) )
-        print(copy_im.shape)
-        print(anot_im.shape)
-        bbox_anot = convert_bbox(row["x1_anot"], row["x2_anot"], row["y1_anot"], row["y2_anot"])
-        rect_anot = patches.Rectangle((bbox_anot[0], bbox_anot[1]), bbox_anot[2], bbox_anot[3], linewidth=1, edgecolor='r', facecolor='none')
+    cv2.imwrite(f"{IMG_BOX_DIR}/{image_copied_name}_{image_based_name}.png", img)
 
-
-        axs[0].imshow(copy_im)
-        axs[1].imshow(anot_im)
-        axs[1].add_patch(rect_anot)
-        # plt.savefig(os.path.join(test_src_folder, "test_image", str(index)))
-
-    # plt.subplots_adjust(wspace=0.025, hspace=0.025)
-
-draw_compare_image(dm)
-
+for index, row in dm.iterrows():
+    try:   
+        draw_box(row['imageUid_based'], row['imageUid_copied'])
+    except Exception as e:
+        print(e)
 
 # %%
 
 # Split dcm file
 import shutil
 
-path_source = '/home/single3/tintrung/brain-mri-tumor-images-bboxes-copy_2'
-path_target_root = '/home/single3/tintrung/brain-mri-tumor-images-bboxes-copy_2_split'
-df_bboxes_copy = pd.read_pickle('/home/single3/tintrung/VBDI_brain_mri/brainmri/tinnvt/brain-mri-abnormal/csv_new/brain-mri-xml-bboxes-copy.pkl')
+path_source = '/home/single2/tintrung/brain-mri-tumor-images-bboxes-copy_2'
+path_target_root = '/home/single2/tintrung/brain-mri-tumor-images-bboxes-copy_2_split'
+df_bboxes_copy = pd.read_pickle('/home/single2/tintrung/VBDI_brain_mri/brainmri/tinnvt/brain-mri-abnormal/csv_new/brain-mri-xml-bboxes-copy.pkl')
 
 for idx, row in tqdm(df_bboxes_copy.iterrows()):
     path_src_file = os.path.join(path_source, row['imageUid']+'.png')
